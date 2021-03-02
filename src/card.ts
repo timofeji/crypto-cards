@@ -1,6 +1,7 @@
 
-export class Greeter {
+export class Card {
     name: string;
+    description: string;
 
     constructor(name: string) {
         this.name = name;
