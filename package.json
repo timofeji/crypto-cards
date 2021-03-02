@@ -42,5 +42,9 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
     "@babel/preset-env": "^7.4.1",
     "@babel/preset-typescript": "^7.3.3"
+  },
+  "dependencies": {
+    "@types/gl-matrix": "^3.2.0",
+    "gl-matrix": "^3.3.0"
   }
 }

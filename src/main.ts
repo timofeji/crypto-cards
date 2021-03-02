@@ -1,13 +1,52 @@
 import { createContext, isContext } from "vm";
-import { Card } from "./card";
+import { Card } from "./game/card";
+import { initRenderer, draw } from "./engine/renderer";
+import {IGame} from "./types/IGame";
 
-const g = new Card("BITCH");
-g.greet();
 
-document.write(g.greet());
+class Game implements IGame {
+    gl: WebGLRenderingContext;
+}
 
-let canvas = <HTMLCanvasElement>document.getElementById("canvas");
-canvas.width = 1000;
-canvas.height = 1000;
-let ctx = canvas.getContext("2d");
 
+window.onload = () => {
+
+    let currentTime = 0;
+    let lastTime = 0;
+    let deltaTime = 0;
+    let canvas = <HTMLCanvasElement>document.getElementById("canvas");
+
+    //Instantiate game instance
+    let game = new Game();
+    game.gl = canvas.getContext("webgl");
+
+    initRenderer(game);
+
+    //main loop ~ executes each anim frame to simulate and render game
+    let main = () => {
+        //Get current delta
+        currentTime = Date.now();
+        deltaTime = (currentTime - lastTime) / 1000.0;
+
+        // // resize canvas
+        // canvas.width = window.innerWidth;
+        // canvas.height = window.innerHeight;
+
+        if (!game.gl) {
+            console.log("Failed to get the rendering context for WebGL");
+            return;
+        }
+
+        //Simulate
+        // simulate(game, deltaTime);
+
+        //Render
+        draw(game, deltaTime);
+
+        lastTime = currentTime;
+        requestAnimationFrame(main);
+    };
+
+    console.log("starting game yo");
+    requestAnimationFrame(main);
+};
