@@ -17,13 +17,6 @@ export class vec3 {
     arr() {
         return [this.X, this.Y, this.Z];
     }
-
-    // add(u: any, v: any, w: any) {
-    //     this.X += u;
-    //     this.Y += v;
-    //     this.Z += w;
-    // }
-
     add(x: vec3) {
         this.X += x.X;
         this.Y += x.Y;
@@ -63,6 +56,24 @@ export class vec3 {
 export namespace VMath {
     export function dot(a: vec3, b: vec3) {}
 
+    export function add(a:vec3, b:vec3){
+        let ret = new vec3(0, 0, 0);
+        ret.X = a.X + b.X;
+        ret.Y = a.Y + b.Y;
+        ret.Z = a.Z + b.Z;
+        return ret;
+    }
+
+
+    export function sub(a:vec3, b:vec3){
+        let ret = new vec3(0, 0, 0);
+        ret.X = a.X - b.X;
+        ret.Y = a.Y - b.Y;
+        ret.Z = a.Z - b.Z;
+        return ret;
+    }
+
+
     export function cross(a: vec3, b: vec3) {
         let ret = new vec3(0, 0, 0);
         ret.X = a.Y * b.Z - a.Z * b.Y;
@@ -71,4 +82,5 @@ export namespace VMath {
 
         return ret;
     }
+
 }

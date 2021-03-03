@@ -5,7 +5,7 @@ body{
 }
 
 canvas{
-    width: 100vw;
-    height:100vv;
+    /* width: 100vw;
+    height:100vv; */
     background: rgb(0, 0, 0);
 }

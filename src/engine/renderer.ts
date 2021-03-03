@@ -29,13 +29,20 @@ export class World {
 
     constructor() {
         let box2 = new Box3D();
+        let box3 = new Box3D();
+        box2.v_position = new vec3(0, 2, 0);
         this.camera = new Camera();
-        this.camera.v_position = new vec3(0, 0, 5);
+        this.camera.v_position = new vec3(5, 5, 0);
         this.camera.v_lookAt = new vec3(0, 0, 0);
 
 
-        // this.objects.(box2);
-        // this.objects[1] = box;
+        this.loadMesh(box2);
+        this.loadMesh(box3);
+    }
+
+    loadMesh(mesh:IMesh)
+    {
+
     }
 }
 
@@ -131,25 +138,26 @@ export async function initRenderer(game: ISimulation) {
     mat4.perspective(
         projMatrix,
         glMatrix.toRadian(90),
-        window.innerWidth / window.innerHeight,
+        gl.canvas.width / gl.canvas.height,
         0.1,
         1000.0
     );
+
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
     gl.uniformMatrix4fv(matProjUniformLocation, false, projMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
 
-    var xRotationMatrix = new Float32Array(16);
-    var yRotationMatrix = new Float32Array(16);
 }
 
 export function draw(game: ISimulation, deltaTime: number) {
     let gl = game.gl;
     let world = game.world
 
-    angle = (performance.now() / 1000) * 2 * Math.PI;
-    let offset = Math.sin(performance.now() / 1000);
+
+    // angle = (performance.now() / 1000) * 2 * Math.PI;
+    // let offset = Math.sin(performance.now() / 1000);
     // console.log(offset);
     // mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
     // mat4.rotate(xRotationMatrix, identityMatrix, angle / 4, [0, 0, 0]);
@@ -162,8 +170,9 @@ export function draw(game: ISimulation, deltaTime: number) {
 
     mat4.lookAt(viewMatrix, 
         [world.camera.v_position.X, world.camera.v_position.Y,world.camera.v_position.Z], 
-        [world.camera.v_lookAt.X, world.camera.v_lookAt.Y,world.camera.v_lookAt.Z], 
-        [0, 1, 0]); // Y UP
+        [world.camera.v_lookAt.X, world.camera.v_lookAt.Y,world.camera.v_lookAt.Z],
+        [0, 1, 0]
+    ); // Y UP
 
     gl.clearColor(0.1, 0.1, 0.1, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
