@@ -1,3 +1,4 @@
+import { mat4 } from "gl-matrix";
 import { vec3 } from "../math";
 
 export interface IMaterial{
@@ -6,9 +7,10 @@ export interface IMaterial{
 
 }
 export interface IMesh{
-    m_VERTICES: Array<number>;
+    m_VERTICES: Float32Array;
     m_INDICES: Array<number>;
     v_position: vec3;
+    m_modelMatrix: mat4;
 
     material: IMaterial
 

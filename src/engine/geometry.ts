@@ -1,11 +1,15 @@
+import { mat4 } from "gl-matrix";
 import { vec3 } from "./math";
 import { IMaterial, IMesh } from "./types/IMesh";
 
 export class Box3D implements IMesh{
     m_VERTICES: any;
     m_INDICES: any;
+    m_modelMatrix: mat4;
     v_position: vec3;
+
     material: IMaterial;
+
 
     constructor(){
         this.m_VERTICES= 
@@ -73,20 +77,35 @@ export class Box3D implements IMesh{
                 21, 20, 22,
                 22, 20, 23
             ];
+
+            this.m_modelMatrix = mat4.create();
+            this.v_position = new vec3(0,0,0);
         }
 }
 
 export class Plane3D implements IMesh {
     m_VERTICES: any;
     m_INDICES: any;
+    m_modelMatrix:mat4;
     v_position: vec3;
     material: IMaterial;
+
+    constructor()
+    {
+        this.m_modelMatrix = mat4.create();
+    }
 }
 
-export class Model3D implements IMesh {
-    m_VERTICES: any;
-    m_INDICES: any; 
-    v_position: vec3;
-    material: IMaterial
-}
+// export class Model3D implements IMesh {
+//     m_VERTICES: any;
+//     m_INDICES: any; 
+//     v_position: vec3;
+//     material: IMaterial
+
+//     constructor()
+//     {
+
+
+//     }
+// }
 

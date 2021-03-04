@@ -1,6 +1,6 @@
 import { createContext, isContext } from "vm";
 import { Card } from "./game/card";
-import { initRenderer, draw, World } from "./engine/renderer";
+import { initRenderer, render, World } from "./engine/renderer";
 import { ISimulation } from "./engine/types/ISimulation";
 import { vec3, VMath } from "./engine/math";
 import { simulate } from "./engine/simulation";
@@ -48,7 +48,7 @@ window.onload = () => {
         simulate(game, deltaTime);
 
         //Render
-        draw(game, deltaTime);
+        render(game, deltaTime);
 
         lastTime = currentTime;
         requestAnimationFrame(main);
