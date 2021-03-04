@@ -2,7 +2,7 @@ import { ISimulation } from "./types/ISimulation";
 import { IMesh } from "./types/IMesh";
 import { IEntity } from "./types/IEntity";
 import { mat4, glMatrix } from "gl-matrix";
-import { Box3D } from "./geometry";
+import { Box2, Box3D, Plane3D } from "./geometry";
 import { vec3 } from "./math";
 
 var matWorldUniformLocation: WebGLUniformLocation;
@@ -18,6 +18,7 @@ var viewMatrix = new Float32Array(16);
 var projMatrix = new Float32Array(16);
 let glProgram: WebGLProgram;
 var VBO: WebGLBuffer;
+var VIO: WebGLBuffer;
 
 export class Camera {
     v_position: vec3;
@@ -36,17 +37,19 @@ export class World {
         this.camera.v_lookAt = new vec3(0, 0, 0);
         this.objects = [];
 
-        let box2 = new Box3D();
+        // let box2 = new Box3D();
         let box3 = new Box3D();
-        let box4 = new Box3D();
-        box2.v_position = new vec3(0, 2, 0);
-        box3.v_position = new vec3(0, 0, 1);
-        box4.v_position = new vec3(3, 0, 1);
+        let box4 = new Plane3D();
+        let box = new Box3D();
+        // box2.v_position = new vec3(0, 2, 0);
+        box3.v_position = new vec3(0, 0, 2);
+        box4.v_position = new vec3(0, 0, 0);
+        box.v_position = new vec3(2, 0, 0);
 
-        this.loadMesh(box2);
-        this.loadMesh(box3);
+        // this.loadMesh(box2);
+        // this.loadMesh(box3);
 
-        this.objects.push(box2);
+        this.objects.push(box);
         this.objects.push(box3);
         this.objects.push(box4);
     }
@@ -106,8 +109,8 @@ export async function initRenderer(game: ISimulation) {
         gl.STATIC_DRAW
     );
 
-    var boxIndexBufferObject = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boxIndexBufferObject);
+    VIO = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VIO);
     gl.bufferData(
         gl.ELEMENT_ARRAY_BUFFER,
         new Uint16Array(box.m_INDICES),
@@ -206,10 +209,22 @@ export function render(game: ISimulation, deltaTime: number) {
         // // gl.uniform3fv(programInfo.uniformLocations.color, object.color);
 
 
-        // gl.bindBuffer(gl.ARRAY_BUFFER, VBO);
         // gl.bufferData(gl.ARRAY_BUFFER, renderObject.m_VERTICES, gl.STATIC_DRAW)
 
-        gl.drawElements(gl.TRIANGLES, box.m_INDICES.length, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, VBO);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array(renderObject.m_VERTICES),
+            gl.STATIC_DRAW
+        );
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VIO);
+        gl.bufferData(
+            gl.ELEMENT_ARRAY_BUFFER,
+            new Uint16Array(box.m_INDICES),
+            gl.STATIC_DRAW
+        );
+
+        gl.drawElements(gl.TRIANGLES, renderObject.m_INDICES.length, gl.UNSIGNED_SHORT, 0);
         // gl.drawArrays(gl.TRIANGLES, 0, renderObject.m_VERTICES.length / 3);
     });
 
