@@ -45,19 +45,25 @@ export function simulate(game: ISimulation, deltaTime: number) {
 
     if (keys["a"]) {
         // game.world.camera.v_position.sub(camRight);
-        game.world.camera.pitch += 2 * deltaTime;
-    } else if (keys["d"]) {
+        game.world.camera.pitch += 3 * deltaTime;
+    } 
+    if (keys["d"]) {
         // game.world.camera.v_position.add(camRight);
-        game.world.camera.pitch -= 2 * deltaTime;
-    } else if (keys["w"]) {
-        game.world.camera.yaw -= 2 * deltaTime;
+        game.world.camera.pitch -= 3 * deltaTime;
+    } 
+    if (keys["w"]) {
+        // game.world.camera.yaw -= 2 * deltaTime;
+        game.world.camera.yaw = Math.min(Math.max(game.world.camera.yaw - 2 * deltaTime, -90 * Math.PI/180),0);
         // game.world.camera.v_position.sub(camUp);
-    } else if (keys["s"]) {
-        game.world.camera.yaw += 2 * deltaTime;
+    } 
+    if (keys["s"]) {
+        // game.world.camera.yaw += 2 * deltaTime;
+        game.world.camera.yaw = Math.min(Math.max(game.world.camera.yaw + 2 * deltaTime, -90 * Math.PI/180),0);
+        // game.world.camera.yaw = Math.min(Math.max(game.world.camera.yaw - 2 * deltaTime, 180),-90);
         // game.world.camera.v_position.add(camUp);
     }
 
-
+    game.world.objects[0].v_position=new vec3(0,1+Math.sin(performance.now()/1000),0);
     if(bMouseDown){
 
     }

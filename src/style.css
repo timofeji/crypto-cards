@@ -1,5 +1,5 @@
 body{
-    margin: 2px;
+    margin: 0px;
     background: rgb(94, 94, 94);
     color:white;
 }
@@ -8,4 +8,19 @@ canvas{
     /* width: 100vw;
     height:100vv; */
     background: rgb(0, 0, 0);
+}
+
+.header {
+    position: fixed;
+    top: 5px;
+    z-index: 1000;
+    text-align: center;
+    width: 100vw;
+    display: flexbox;
+}
+
+.header-btn{
+    position: fixed;
+    top: 5px;
+    z-index: 1000;
 }
