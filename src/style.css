@@ -1,3 +1,8 @@
+* {
+	font-family: monospace;
+}
+
+
 body{
     margin: 0px;
     background: rgb(94, 94, 94);
@@ -20,7 +25,29 @@ canvas{
 }
 
 .header-btn{
+    position: relative;
+    top: 20px;
+    left: 5px;
+    z-index: 1000;
+    align-items: left;
+
+    background-color: #9f2d2d; /* Green */
+    border: none;
+    color: white;
+    padding: 7.5px 32px;
+    text-decoration: none;
+    font-size: 16px;
+    display: inline-block;
+}
+.header-btn:hover{
+    background-color: #e88b8b; /* Green */
+}
+
+.wallet{
     position: fixed;
     top: 5px;
+    text-align: center;
+    width: 100vw;
+    display: flexbox;
     z-index: 1000;
 }
