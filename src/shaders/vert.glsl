@@ -1,7 +1,7 @@
 precision mediump float;
 
 attribute vec3 vertPosition;
-attribute vec3 vertColor;
+// attribute vec3 vertColor;
 attribute vec2 vertTexCoord;
 varying vec2 vTexCoord;
 uniform mat4 mWorld;

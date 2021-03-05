@@ -11,6 +11,7 @@ interface Map<T> {
 }
 
 let keys: Map<boolean> = {};
+let bMouseDown: boolean;
 
 let onKeyUp = (event: any) => {
     keys[event.key] = false;
@@ -20,8 +21,20 @@ let onKeyDown = (event: any) => {
     keys[event.key] = true;
 };
 
+let onMouseUp = (event: any) => {
+    bMouseDown = false;
+};
+
+let onMouseDown = (event: any) => {
+    bMouseDown = true;
+};
+
+
+
 document.addEventListener("keyup", onKeyUp, false);
 document.addEventListener("keydown", onKeyDown, false);
+document.addEventListener("mousedown", onMouseUp, false);
+document.addEventListener("mouseup", onMouseDown, false);
 
 export function simulate(game: ISimulation, deltaTime: number) {
     let cam = game.world.camera;
@@ -31,13 +44,22 @@ export function simulate(game: ISimulation, deltaTime: number) {
     let camUp = VMath.cross(v_dir, camRight);
 
     if (keys["a"]) {
-        game.world.camera.v_position.sub(camRight);
+        // game.world.camera.v_position.sub(camRight);
+        game.world.camera.pitch += 2 * deltaTime;
     } else if (keys["d"]) {
-        game.world.camera.v_position.add(camRight);
+        // game.world.camera.v_position.add(camRight);
+        game.world.camera.pitch -= 2 * deltaTime;
     } else if (keys["w"]) {
-        game.world.camera.v_position.sub(camUp);
+        game.world.camera.yaw -= 2 * deltaTime;
+        // game.world.camera.v_position.sub(camUp);
     } else if (keys["s"]) {
-        game.world.camera.v_position.add(camUp);
+        game.world.camera.yaw += 2 * deltaTime;
+        // game.world.camera.v_position.add(camUp);
+    }
+
+
+    if(bMouseDown){
+
     }
 
     // let renderObject = game.world.objects[0];
