@@ -9,6 +9,7 @@ export interface IMaterial{
 export interface IMesh{
     m_VERTICES: Float32Array;
     m_INDICES: Array<number>;
+    m_TEXCOORDS: Array<number>;
     v_position: vec3;
     m_modelMatrix: mat4;
 

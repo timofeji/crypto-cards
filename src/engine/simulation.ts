@@ -1,3 +1,4 @@
+import { mat4 } from "gl-matrix";
 import { vec3, VMath } from "./math";
 import { World } from "./renderer";
 import { ISimulation } from "./types/ISimulation";
@@ -38,6 +39,8 @@ export function simulate(game: ISimulation, deltaTime: number) {
     } else if (keys["s"]) {
         game.world.camera.v_position.add(camUp);
     }
+
+    // let renderObject = game.world.objects[0];
 
     // for (let index = 0; index < game.world.objects.length; index++) {
     //     const element = game.world.objects[index];

@@ -19,7 +19,8 @@ var projMatrix = new Float32Array(16);
 let glProgram: WebGLProgram;
 var VBO: WebGLBuffer;
 var VIO: WebGLBuffer;
-
+var VUV: WebGLBuffer;
+var texture:WebGLTexture;
 export class Camera {
     v_position: vec3;
     v_lookAt: vec3;
@@ -39,11 +40,12 @@ export class World {
 
         // let box2 = new Box3D();
         let box3 = new Box3D();
-        let box4 = new Plane3D();
+        let plane = new Plane3D();
         let box = new Box3D();
         // box2.v_position = new vec3(0, 2, 0);
         box3.v_position = new vec3(0, 0, 2);
-        box4.v_position = new vec3(0, 0, 0);
+        plane.v_position = new vec3(0, -1, 0);
+        plane.v_position
         box.v_position = new vec3(2, 0, 0);
 
         // this.loadMesh(box2);
@@ -51,7 +53,7 @@ export class World {
 
         this.objects.push(box);
         this.objects.push(box3);
-        this.objects.push(box4);
+        this.objects.push(plane);
     }
 
     loadMesh(mesh:IMesh)
@@ -116,8 +118,17 @@ export async function initRenderer(game: ISimulation) {
         new Uint16Array(box.m_INDICES),
         gl.STATIC_DRAW
     );
+    VUV = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VUV);
+    gl.bufferData(
+        gl.ELEMENT_ARRAY_BUFFER,
+        new Uint16Array(box.m_TEXCOORDS),
+        gl.STATIC_DRAW
+    );
+
     var posAttribLocation = gl.getAttribLocation(glProgram,"vertPosition");
     var colorAttribLocation = gl.getAttribLocation(glProgram, "vertColor");
+    var texAttribLocation = gl.getAttribLocation(glProgram, "vertTexCoord");
     gl.vertexAttribPointer(
         posAttribLocation, // Attribute location
         3, // Number of elements per attribute
@@ -134,6 +145,51 @@ export async function initRenderer(game: ISimulation) {
         6 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
         3 * Float32Array.BYTES_PER_ELEMENT // Offset from the beginning of a single vertex to this attribute
     );
+    gl.enableVertexAttribArray(texAttribLocation);
+
+    gl.vertexAttribPointer(
+        texAttribLocation, // Attribute location
+        2, // Number of elements per attribute
+        gl.FLOAT, // Type of elements
+        false,
+        0,
+        0
+    );
+ 
+
+    texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    // Fill the texture with a 1x1 blue pixel.
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        1,
+        1,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 255, 255])
+    );
+
+    // Asynchronously load an image
+    var image = new Image();
+    image.src = "../assets/f-texture.png";
+    image.addEventListener("load", function () {
+        // Now that the image has loaded make copy it to the texture.
+
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl.RGBA,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            image
+        );
+        gl.generateMipmap(gl.TEXTURE_2D);
+    });
+
     
 
     gl.enableVertexAttribArray(posAttribLocation);
@@ -167,6 +223,7 @@ export async function initRenderer(game: ISimulation) {
     gl.uniformMatrix4fv(matModelUniformLocation, false, modelMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
 
+
 }
 
 export function render(game: ISimulation, deltaTime: number) {
@@ -183,33 +240,34 @@ export function render(game: ISimulation, deltaTime: number) {
 
 
     // angle = (performance.now() / 1000) * 2 * Math.PI;
-    // let offset = Math.sin(performance.now() / 1000);
+    let offset = Math.sin(performance.now() / 1000)*2;
     // console.log(offset);
     // mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
     // mat4.rotate(xRotationMatrix, identityMatrix, angle / 4, [0, 0, 0]);
-    // mat4.translate(worldMatrix, identityMatrix, [0, 0, 0]);
+    // mat4.translate(worldMatrix, identityMatrix, [0, offset, 0]);
     // mat4.mul(worldMatrix, worldMatrix, yRotationMatrix);
-    // gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
+    gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
 
+
+    game.world.objects[0].v_position=new vec3(0,offset+2,0);
     
 
     gl.clearColor(0.1, 0.1, 0.1, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     world.objects.forEach(renderObject => { // not to be confused w/ OOP bullshit
-        mat4.rotateY(renderObject.m_modelMatrix, renderObject.m_modelMatrix, (Math.PI / 180));
         mat4.translate(renderObject.m_modelMatrix, identityMatrix, [renderObject.v_position.X, renderObject.v_position.Y, renderObject.v_position.Z]);
-        gl.uniformMatrix4fv(matModelUniformLocation, false, renderObject.m_modelMatrix);
-
+        // mat4.rotateY(renderObject.m_modelMatrix, renderObject.m_modelMatrix, deltaTime);
         // gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
 
         // // gl.uniformMatrix4fv(programInfo.uniformLocations.normalMatrix, false, object.normalMatrix);
 
         // // gl.uniform3fv(programInfo.uniformLocations.color, object.color);
 
-
         // gl.bufferData(gl.ARRAY_BUFFER, renderObject.m_VERTICES, gl.STATIC_DRAW)
+
+        gl.uniformMatrix4fv(matModelUniformLocation, false, renderObject.m_modelMatrix);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, VBO);
         gl.bufferData(
@@ -224,6 +282,13 @@ export function render(game: ISimulation, deltaTime: number) {
             gl.STATIC_DRAW
         );
 
+        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VUV);
+        // gl.bufferData(
+        //     gl.ARRAY_BUFFER,
+        //     new Float32Array(renderObject.m_TEXCOORDS),
+        //     gl.STATIC_DRAW
+        // );
+        // gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.drawElements(gl.TRIANGLES, renderObject.m_INDICES.length, gl.UNSIGNED_SHORT, 0);
         // gl.drawArrays(gl.TRIANGLES, 0, renderObject.m_VERTICES.length / 3);
     });

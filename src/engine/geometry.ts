@@ -5,6 +5,7 @@ import { IMaterial, IMesh } from "./types/IMesh";
 export class Box3D implements IMesh{
     m_VERTICES: any;
     m_INDICES: any;
+    m_TEXCOORDS: Array<number>;
     m_modelMatrix: mat4;
     v_position: vec3;
 
@@ -78,6 +79,39 @@ export class Box3D implements IMesh{
                 22, 20, 23
             ];
 
+            this.m_TEXCOORDS = [
+                // Front
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Back
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Top
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Bottom
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Right
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Left
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0
+              ];
+
             this.m_modelMatrix = mat4.create();
             this.v_position = new vec3(0,0,0);
         }
@@ -86,6 +120,7 @@ export class Box3D implements IMesh{
 export class Box2 implements IMesh {
     m_VERTICES: any;
     m_INDICES: any;
+    m_TEXCOORDS: any;
     m_modelMatrix: mat4;
     v_position: vec3;
 
@@ -148,6 +183,39 @@ export class Box2 implements IMesh {
 
       
             ];
+            this.m_TEXCOORDS = [
+                // Front
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Back
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Top
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Bottom
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Right
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0,
+                // Left
+                0.0,  0.0,
+                1.0,  0.0,
+                1.0,  1.0,
+                0.0,  1.0
+              ];
+
 
             this.m_modelMatrix = mat4.create();
             this.v_position = new vec3(0,0,0);
@@ -157,6 +225,7 @@ export class Box2 implements IMesh {
 export class Plane3D implements IMesh {
     m_VERTICES: any;
     m_INDICES: any;
+    m_TEXCOORDS: Array<number>;
     m_modelMatrix:mat4;
     v_position: vec3;
     material: IMaterial;
@@ -166,10 +235,10 @@ export class Plane3D implements IMesh {
         this.m_VERTICES= 
         [ // X, Y, Z           R, G, B
             // Front
-            -1.0, 1.0, -1.0,   1.5, 0.5, 0.5,
-            -1.0, 1.0, 1.0,    0.5, 1.5, 0.5,
-            1.0, 1.0, 1.0,     0.5, 0.5, 1.5,
-            1.0, 1.0, -1.0,    0.5, 0.5, 0.5
+            -5.0, 0.0, -5.0,   1.5, 0.5, 0.5,
+            -5.0, 0.0, 5.0,    0.5, 1.5, 0.5,
+            5.0, 0.0, 5.0,     0.5, 0.5, 1.5,
+            5.0, 0.0, -5.0,    0.5, 0.5, 0.5
 
         ];
 
@@ -178,6 +247,15 @@ export class Plane3D implements IMesh {
             0, 1, 2,
             0, 2, 3
         ];
+
+        this.m_TEXCOORDS = [
+            // Front
+            0.0,  0.0,
+            1.0,  0.0,
+            1.0,  1.0,
+            0.0,  1.0,
+        ];
+
         this.m_modelMatrix = mat4.create();
         this.v_position = new vec3(0,0,0);
     }
