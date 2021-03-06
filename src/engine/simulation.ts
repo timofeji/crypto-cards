@@ -1,6 +1,6 @@
 import { mat4 } from "gl-matrix";
 import { vec3, VMath } from "./math";
-import { World } from "./renderer";
+import { World, viewMatrix } from "./renderer";
 import { ISimulation } from "./types/ISimulation";
 
 
@@ -36,6 +36,26 @@ document.addEventListener("keydown", onKeyDown, false);
 document.addEventListener("mousedown", onMouseUp, false);
 document.addEventListener("mouseup", onMouseDown, false);
 
+//Update view in simulation for performance sake
+let updateView = (world: World) => {
+    mat4.lookAt(
+        viewMatrix,
+        [
+            world.camera.v_position.X,
+            world.camera.v_position.Y,
+            world.camera.v_position.Z,
+        ],
+        [
+            world.camera.v_lookAt.X,
+            world.camera.v_lookAt.Y,
+            world.camera.v_lookAt.Z,
+        ],
+        [0, 1, 0]
+    ); // Y UP
+    mat4.rotateZ(viewMatrix, viewMatrix, world.camera.yaw);
+    mat4.rotateY(viewMatrix, viewMatrix, world.camera.pitch);
+};
+
 export function simulate(game: ISimulation, deltaTime: number) {
     let cam = game.world.camera;
     let v_dir = VMath.sub(cam.v_lookAt, cam.v_position).normalize();
@@ -46,21 +66,25 @@ export function simulate(game: ISimulation, deltaTime: number) {
     if (keys["a"]) {
         // game.world.camera.v_position.sub(camRight);
         game.world.camera.pitch += 3 * deltaTime;
+        updateView(game.world);
     } 
     if (keys["d"]) {
         // game.world.camera.v_position.add(camRight);
         game.world.camera.pitch -= 3 * deltaTime;
+        updateView(game.world);
     } 
     if (keys["w"]) {
         // game.world.camera.yaw -= 2 * deltaTime;
         game.world.camera.yaw = Math.min(Math.max(game.world.camera.yaw - 2 * deltaTime, -90 * Math.PI/180),0);
         // game.world.camera.v_position.sub(camUp);
+        updateView(game.world);
     } 
     if (keys["s"]) {
         // game.world.camera.yaw += 2 * deltaTime;
         game.world.camera.yaw = Math.min(Math.max(game.world.camera.yaw + 2 * deltaTime, -90 * Math.PI/180),0);
         // game.world.camera.yaw = Math.min(Math.max(game.world.camera.yaw - 2 * deltaTime, 180),-90);
         // game.world.camera.v_position.add(camUp);
+        updateView(game.world);
     }
 
     game.world.objects[0].v_position=new vec3(0,1+Math.sin(performance.now()/1000),0);
@@ -74,3 +98,5 @@ export function simulate(game: ISimulation, deltaTime: number) {
     //     const element = game.world.objects[index];
     // }
 }
+
+

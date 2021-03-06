@@ -11,15 +11,19 @@ var matViewUniformLocation: WebGLUniformLocation;
 
 let identityMatrix = new Float32Array(16);
 mat4.identity(identityMatrix);
-let angle = 0;
+
+export var viewMatrix = new Float32Array(16);
 var worldMatrix = new Float32Array(16);
 var modelMatrix = new Float32Array(16);
-var viewMatrix = new Float32Array(16);
 var projMatrix = new Float32Array(16);
+
 let glProgram: WebGLProgram;
+
 var VBO: WebGLBuffer;
 var VIO: WebGLBuffer;
 var VUV: WebGLBuffer;
+
+
 var texture:WebGLTexture;
 var texture2:WebGLTexture;
 
@@ -218,7 +222,7 @@ export async function initRenderer(game: ISimulation) {
 
     mat4.identity(worldMatrix);
     mat4.identity(modelMatrix);
-    mat4.lookAt(viewMatrix, [0, 0, 0], [0, 0, 0], [0, 1, 0]);
+    mat4.lookAt(viewMatrix, [7, 0, 0], [0, 0, 0], [0, 1, 0]);
     mat4.perspective(
         projMatrix,
         glMatrix.toRadian(90),
@@ -239,16 +243,6 @@ export function render(game: ISimulation, deltaTime: number) {
     let gl = game.gl;
     let world = game.world
 
-    mat4.lookAt(viewMatrix, 
-        [world.camera.v_position.X, world.camera.v_position.Y,world.camera.v_position.Z], 
-        [world.camera.v_lookAt.X, world.camera.v_lookAt.Y,world.camera.v_lookAt.Z],
-        [0, 1, 0]
-    ); // Y UP
-    mat4.rotateZ(viewMatrix, viewMatrix, world.camera.yaw);
-    mat4.rotateY(viewMatrix, viewMatrix, world.camera.pitch);
-
-
-
     // angle = (performance.now() / 1000) * 2 * Math.PI;
     let offset = Math.sin(performance.now() / 1000);
 
@@ -256,7 +250,6 @@ export function render(game: ISimulation, deltaTime: number) {
     // mat4.rotate(xRotationMatrix, identityMatrix, angle / 4, [0, 0, 0]);
     // mat4.mul(worldMatrix, worldMatrix, yRotationMatrix);
 
-    // gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
 
     gl.clearColor(0.1, 0.07, 0.07, 1);
