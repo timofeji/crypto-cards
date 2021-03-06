@@ -24,7 +24,7 @@ canvas{
     display: flexbox;
 }
 
-.header-btn{
+a{
     position: relative;
     top: 20px;
     left: 5px;
@@ -38,9 +38,16 @@ canvas{
     text-decoration: none;
     font-size: 16px;
     display: inline-block;
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
 }
-.header-btn:hover{
+a:hover{
     background-color: #e88b8b; /* Green */
+}
+a:active{
+    background-color: #4e1717; /* Green */
 }
 
 .wallet{

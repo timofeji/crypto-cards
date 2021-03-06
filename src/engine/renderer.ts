@@ -2,7 +2,7 @@ import { ISimulation } from "./types/ISimulation";
 import { IMesh } from "./types/IMesh";
 import { IEntity } from "./types/IEntity";
 import { mat4, glMatrix } from "gl-matrix";
-import { Box2, Box3D, Plane3D } from "./geometry";
+import { Box2, Box3D, Plane3D, loadOBJ} from "./geometry";
 import { vec3 } from "./math";
 
 var matWorldUniformLocation: WebGLUniformLocation;
@@ -22,8 +22,6 @@ var VIO: WebGLBuffer;
 var VUV: WebGLBuffer;
 var texture:WebGLTexture;
 var texture2:WebGLTexture;
-
-export var cam_angle = 0;
 
 
 export class Camera {
@@ -66,10 +64,10 @@ export class World {
         this.objects.push(plane);
     }
 
-    loadMesh(mesh:IMesh)
-    {
+    // loadMesh(mesh:IMesh)
+    // {
     //    this.objects.push(mesh);
-    }
+    // }
 }
 
 export async function initRenderer(game: ISimulation) {
@@ -78,8 +76,21 @@ export async function initRenderer(game: ISimulation) {
     let fragShader = await (await fetch("../shaders/frag.glsl")).text();
     let vertShader = await (await fetch("../shaders/vert.glsl")).text();
 
+    const obj = await (await fetch('../assets/test.obj')).text();
+    const teapot = await (await fetch('../assets/teapot.obj')).text();
+    let model = loadOBJ(obj);
+    let tea = loadOBJ(teapot);
+    tea.v_position = new vec3(4,0,0);
+    game.world.objects.push(model);
+    game.world.objects.push(tea);
+
+    console.log(tea.m_VERTICES);
+    console.log(tea.m_TEXCOORDS);
+    console.log(tea.m_INDICES);
+
+
     gl.clearColor(0.65, 0.85, 0.8, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.frontFace(gl.CCW);
@@ -121,6 +132,8 @@ export async function initRenderer(game: ISimulation) {
         gl.STATIC_DRAW
     );
 
+
+    
     VIO = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VIO);
     gl.bufferData(
@@ -128,6 +141,8 @@ export async function initRenderer(game: ISimulation) {
         new Uint16Array(box.m_INDICES),
         gl.STATIC_DRAW
     );
+
+
     VUV = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VUV);
     gl.bufferData(
@@ -136,7 +151,7 @@ export async function initRenderer(game: ISimulation) {
         gl.STATIC_DRAW
     );
 
-    var posAttribLocation = gl.getAttribLocation(glProgram,"vertPosition");
+    var posAttribLocation = gl.getAttribLocation(glProgram, "vertPosition");
     gl.enableVertexAttribArray(posAttribLocation);
     // var colorAttribLocation = gl.getAttribLocation(glProgram, "vertColor");
     gl.vertexAttribPointer(
@@ -148,7 +163,6 @@ export async function initRenderer(game: ISimulation) {
         0 // Offset from the beginning of a single vertex to this attribute
     );
 
-
     var texAttribLocation = gl.getAttribLocation(glProgram, "vertTexCoord");
     gl.enableVertexAttribArray(texAttribLocation);
     gl.vertexAttribPointer(
@@ -159,7 +173,6 @@ export async function initRenderer(game: ISimulation) {
         2 * Uint16Array.BYTES_PER_ELEMENT,
         0
     );
-
 
     texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -226,7 +239,7 @@ export function render(game: ISimulation, deltaTime: number) {
     let gl = game.gl;
     let world = game.world
 
-   mat4.lookAt(viewMatrix, 
+    mat4.lookAt(viewMatrix, 
         [world.camera.v_position.X, world.camera.v_position.Y,world.camera.v_position.Z], 
         [world.camera.v_lookAt.X, world.camera.v_lookAt.Y,world.camera.v_lookAt.Z],
         [0, 1, 0]
@@ -238,22 +251,25 @@ export function render(game: ISimulation, deltaTime: number) {
 
     // angle = (performance.now() / 1000) * 2 * Math.PI;
     let offset = Math.sin(performance.now() / 1000);
-    // console.log(offset);
+
     // mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
     // mat4.rotate(xRotationMatrix, identityMatrix, angle / 4, [0, 0, 0]);
     // mat4.mul(worldMatrix, worldMatrix, yRotationMatrix);
 
-    gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
+    // gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
 
     gl.clearColor(0.1, 0.07, 0.07, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    world.objects.forEach(renderObject => { // not to be confused w/ OOP bullshit
-        mat4.translate(renderObject.m_modelMatrix, identityMatrix, [renderObject.v_position.X, renderObject.v_position.Y, renderObject.v_position.Z]);
+    world.objects.forEach(renderObject => { 
+        mat4.translate(renderObject.m_modelMatrix, identityMatrix, 
+        [renderObject.v_position.X, renderObject.v_position.Y, renderObject.v_position.Z]);
+
         gl.uniformMatrix4fv(matModelUniformLocation, false, renderObject.m_modelMatrix);
 
-        gl.bufferData(gl.ARRAY_BUFFER, renderObject.m_VERTICES, gl.STATIC_DRAW)
+
+        let uvBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VUV);
         gl.bufferData(
             gl.ELEMENT_ARRAY_BUFFER,
@@ -262,23 +278,25 @@ export function render(game: ISimulation, deltaTime: number) {
         );
 
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, VBO);
+        let vertBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertBuffer);
         gl.bufferData(
             gl.ARRAY_BUFFER,
             new Float32Array(renderObject.m_VERTICES),
             gl.STATIC_DRAW
         );
 
-              gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VIO);
+        let normalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, normalBuffer);
         gl.bufferData(
             gl.ELEMENT_ARRAY_BUFFER,
-            new Uint16Array(renderObject.m_INDICES),
+            new Float32Array(renderObject.m_NORMALS),
             gl.STATIC_DRAW
         );
        
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.drawElements(gl.TRIANGLES, renderObject.m_INDICES.length , gl.UNSIGNED_SHORT, 0);
-        // gl.drawArrays(gl.TRIANGLES, 0, renderObject.m_VERTICES.length);
+        // gl.drawElements(gl.TRIANGLES, renderObject.m_INDICES.length , gl.UNSIGNED_SHORT, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, renderObject.m_VERTICES.length/3);
     });
 
 }
