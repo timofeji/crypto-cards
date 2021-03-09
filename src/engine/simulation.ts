@@ -36,7 +36,7 @@ document.addEventListener("keydown", onKeyDown, false);
 document.addEventListener("mousedown", onMouseUp, false);
 document.addEventListener("mouseup", onMouseDown, false);
 
-//Update view in simulation for performance sake
+// Update view in simulation since mat transforms are expensive 
 let updateView = (world: World) => {
     mat4.lookAt(
         viewMatrix,
