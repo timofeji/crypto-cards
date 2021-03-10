@@ -2,7 +2,7 @@ import { ISimulation } from "./types/ISimulation";
 import { IMesh } from "./types/IMesh";
 import { IEntity } from "./types/IEntity";
 import { mat4, glMatrix } from "gl-matrix";
-import { Box2, Box3D, Plane3D, loadOBJ} from "./geometry";
+import { Box3D, Plane3D, loadOBJ} from "./geometry";
 import { vec3 } from "./math";
 
 var matWorldUniformLocation: WebGLUniformLocation;
@@ -50,21 +50,18 @@ export class World {
         this.camera.yaw = 0;
         this.objects = [];
 
-        // let box2 = new Box3D();
-        let box3 = new Box3D();
-        let plane = new Plane3D();
+        let box2 = new Box3D();
         let box = new Box3D();
-        // box2.v_position = new vec3(0, 2, 0);
-        box3.v_position = new vec3(0, 0, 2);
+        box2.v_position = new vec3(0, 2, 0);
+        // box3.v_position = new vec3(0, 0, 2);
         plane.v_position = new vec3(0, -1, 0);
-        plane.v_position
         box.v_position = new vec3(2, 0, 0);
 
-        // this.loadMesh(box2);
+        this.loadMesh(box2);
         // this.loadMesh(box3);
 
         this.objects.push(box);
-        this.objects.push(box3);
+        // this.objects.push(box3);
         this.objects.push(plane);
     }
 
@@ -72,6 +69,7 @@ export class World {
     {
        this.objects.push(mesh);
     }
+
 }
 
 export async function initRenderer(game: ISimulation) {
@@ -85,7 +83,7 @@ export async function initRenderer(game: ISimulation) {
     let model = loadOBJ(obj);
     // let tea = loadOBJ(teapot);
     // tea.v_position = new vec3(4,0,0);
-    game.world.objects.push(model);
+    // game.world.objects.push(model);
     // game.world.objects.push(tea);
 
     gl.clearColor(0.1, 0.07, 0.07, 1);
@@ -113,6 +111,7 @@ export async function initRenderer(game: ISimulation) {
         );
         return;
     }
+
     gl.validateProgram(glProgram);
     if (!gl.getProgramParameter(glProgram, gl.VALIDATE_STATUS)) {
         console.error(
@@ -131,7 +130,6 @@ export async function initRenderer(game: ISimulation) {
         gl.STATIC_DRAW
     );
 
-    
     VIO = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VIO);
     gl.bufferData(
@@ -140,37 +138,38 @@ export async function initRenderer(game: ISimulation) {
         gl.STATIC_DRAW
     );
 
-
-    VUV = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VUV);
-    gl.bufferData(
-        gl.ELEMENT_ARRAY_BUFFER,
-        new Uint16Array(box.m_TEXCOORDS),
-        gl.STATIC_DRAW
-    );
-
     var posAttribLocation = gl.getAttribLocation(glProgram, "vertPosition");
-    gl.enableVertexAttribArray(posAttribLocation);
-    // var colorAttribLocation = gl.getAttribLocation(glProgram, "vertColor");
-    gl.vertexAttribPointer(
-        posAttribLocation, // Attribute location
-        3, // Number of elements per attribute
-        gl.FLOAT, // Type of elements
-        false,
-        3 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
-        0 // Offset from the beginning of a single vertex to this attribute
-    );
-
     var texAttribLocation = gl.getAttribLocation(glProgram, "vertTexCoord");
-    gl.enableVertexAttribArray(texAttribLocation);
+    // var colorAttribLocation = gl.getAttribLocation(glProgram, "vertColor");
+   
+
+    // VUV = gl.createBuffer();
+    // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VUV);
+    // gl.bufferData(
+    //     gl.ELEMENT_ARRAY_BUFFER,
+    //     new Uint16Array(box.m_TEXCOORDS),
+    //     gl.STATIC_DRAW
+    // );
+
     gl.vertexAttribPointer(
+            posAttribLocation, // Attribute location
+            3, // Number of elements per attribute
+            gl.FLOAT, // Type of elements
+            false,
+            5 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+            0 // Offset from the beginning of a single vertex to this attribute
+        );
+        gl.vertexAttribPointer(
         texAttribLocation, // Attribute location
         2, // Number of elements per attribute
         gl.FLOAT, // Type of elements
         false,
-        2 * Uint16Array.BYTES_PER_ELEMENT,
-        0
+        5 * Float32Array.BYTES_PER_ELEMENT,
+        3 * Float32Array.BYTES_PER_ELEMENT
     );
+
+    gl.enableVertexAttribArray(texAttribLocation);
+    gl.enableVertexAttribArray(posAttribLocation);
 
     texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -231,6 +230,7 @@ export async function initRenderer(game: ISimulation) {
     gl.uniformMatrix4fv(matProjUniformLocation, false, projMatrix);
     gl.uniformMatrix4fv(matModelUniformLocation, false, modelMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
+
 }
 
 export function render(game: ISimulation, deltaTime: number) {
@@ -241,50 +241,14 @@ export function render(game: ISimulation, deltaTime: number) {
     gl.clearColor(0.1, 0.07, 0.07, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+
     world.objects.forEach(renderObject => { 
         mat4.translate(renderObject.m_modelMatrix, identityMatrix, 
         [renderObject.v_position.X, renderObject.v_position.Y, renderObject.v_position.Z]);
 
         gl.uniformMatrix4fv(matModelUniformLocation, false, renderObject.m_modelMatrix);
-
-
-
-
-        // let vertBuffer = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertBuffer);
-        // gl.bufferData(
-        //     gl.ARRAY_BUFFER,
-        //     new Float32Array(renderObject.m_VERTICES),
-        //     gl.STATIC_DRAW
-        // );
-         
-        // VIO = gl.createBuffer();
-        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VIO);
-        // gl.bufferData(
-        //     gl.ELEMENT_ARRAY_BUFFER,
-        //     new Uint16Array(box.m_INDICES),
-        //     gl.STATIC_DRAW
-        // );
-
-        // let uvBuffer = gl.createBuffer();
-        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, VUV);
-        // gl.bufferData(
-        //     gl.ELEMENT_ARRAY_BUFFER,
-        //     new Uint16Array(renderObject.m_TEXCOORDS),
-        //     gl.STATIC_DRAW
-        // );
-
-        // let normalBuffer = gl.createBuffer();
-        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, normalBuffer);
-        // gl.bufferData(
-        //     gl.ELEMENT_ARRAY_BUFFER,
-        //     new Float32Array(renderObject.m_NORMALS),
-        //     gl.STATIC_DRAW
-        // );
-       
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        // gl.drawElements(gl.TRIANGLES, box.m_INDICES.length , gl.UNSIGNED_SHORT, 0);
-        gl.drawArrays(gl.TRIANGLES, 0, box.m_VERTICES.length/3);
+        // gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.drawElements(gl.TRIANGLES, renderObject.m_INDICES.length , gl.UNSIGNED_SHORT, 0);
     });
 
 }
