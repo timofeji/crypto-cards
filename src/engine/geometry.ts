@@ -16,40 +16,40 @@ export class Box3D implements IMesh{
         this.m_VERTICES= 
             [ // X, Y, Z           U, V, 
                 // Top
-                -1.0, 1.0, -1.0,   0, 0,
-                -1.0, 1.0, 1.0,    0, 1,
-                1.0, 1.0, 1.0,     1, 1,
-                1.0, 1.0, -1.0,    1, 0,
+                -1.0, 1.0, -1.0,   //0, 0,
+                -1.0, 1.0, 1.0,    //0, 1,
+                1.0, 1.0, 1.0,     //1, 1,
+                1.0, 1.0, -1.0,    //1, 0,
         
                 // Left
-                -1.0, 1.0, 1.0,    0, 0,
-                -1.0, -1.0, 1.0,   1, 0,
-                -1.0, -1.0, -1.0,  1, 1,
-                -1.0, 1.0, -1.0,   0, 1,
+                -1.0, 1.0, 1.0,    //0, 0,
+                -1.0, -1.0, 1.0,   //1, 0,
+                -1.0, -1.0, -1.0,  //1, 1,
+                -1.0, 1.0, -1.0,   //0, 1,
         
                 // Right
-                1.0, 1.0, 1.0,    1, 1,
-                1.0, -1.0, 1.0,   0, 1,
-                1.0, -1.0, -1.0,  0, 0,
-                1.0, 1.0, -1.0,   1, 0,
+                1.0, 1.0, 1.0,    ///1, 1,
+                1.0, -1.0, 1.0,   ///0, 1,
+                1.0, -1.0, -1.0,  ///0, 0,
+                1.0, 1.0, -1.0,   ///1, 0,
         
                 // Front
-                1.0, 1.0, 1.0,    1, 1,
-                1.0, -1.0, 1.0,    1, 0,
-                -1.0, -1.0, 1.0,    0, 0,
-                -1.0, 1.0, 1.0,    0, 1,
+                1.0, 1.0, 1.0,    //1, 1,
+                1.0, -1.0, 1.0,   // 1, 0,
+                -1.0, -1.0, 1.0,  //  0, 0,
+                -1.0, 1.0, 1.0,   // 0, 1,
         
                 // Back
-                1.0, 1.0, -1.0,    0, 0,
-                1.0, -1.0, -1.0,    0, 1,
-                -1.0, -1.0, -1.0,    1, 1,
-                -1.0, 1.0, -1.0,    1, 0,
+                1.0, 1.0, -1.0,    //0, 0,
+                1.0, -1.0, -1.0,   // 0, 1,
+                -1.0, -1.0, -1.0,  //  1, 1,
+                -1.0, 1.0, -1.0,   // 1, 0,
         
                 // Bottom
-                -1.0, -1.0, -1.0,   1, 1,
-                -1.0, -1.0, 1.0,    1, 0,
-                1.0, -1.0, 1.0,     0, 0,
-                1.0, -1.0, -1.0,    0, 1,
+                -1.0, -1.0, -1.0,   //1, 1,
+                -1.0, -1.0, 1.0,    //1, 0,
+                1.0, -1.0, 1.0,     //0, 0,
+                1.0, -1.0, -1.0,    //0, 1,
             ];
 
             this.m_INDICES =
@@ -208,7 +208,6 @@ export function loadOBJ(text: string): Object3D {
     text.split('\n').forEach(line => {
         if (line.startsWith('v ')) {
             _vertices.push(parseVec(line, 'v '));
-            
         }
 
         if (line.startsWith('vn ')) {
@@ -222,8 +221,8 @@ export function loadOBJ(text: string): Object3D {
         if (line.startsWith('f ')) {
             const parsedFace = parseFace(line);
 
-            vertexIndices.push(parsedFace.map(face => face[0] - 1));
-            texCoordIndices.push(parsedFace.map(face => face[1] - 1));
+            vertexIndices.push(...parsedFace.map(face => face[0] - 1));
+            texCoordIndices.push(...parsedFace.map(face => face[1] - 1));
             normalIndices.push(...parsedFace.map(face => face[2] - 1));
         }
     });
@@ -241,27 +240,23 @@ export function loadOBJ(text: string): Object3D {
         const normal = _normals[normalIndex];
         const texCoord = _texCoords[texCoordIndex];
 
-
-        vertices.push(vertex);
-        normals.push(...normal);
+        if (vertex) {
+            vertices.push(...vertex);
+        }
+        if (normal) {
+            normals.push(...normal);
+        }
 
         if (texCoord) {
             texCoords.push(...texCoord);
         }
     }
 
-    console.log([].join(_vertices));
-    
-
     let mesh = new Object3D();
-    mesh.m_VERTICES = new Float32Array(_vertices);
+    mesh.m_VERTICES = new Float32Array(vertices);
     mesh.m_NORMALS = new Float32Array(normals);
     mesh.m_TEXCOORDS = new Float32Array(texCoords);
     mesh.m_INDICES = new Float32Array(vertexIndices);
-
-    console.log(mesh);
-
-
 
     return mesh;
 }
