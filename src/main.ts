@@ -1,6 +1,6 @@
 import { createContext, isContext } from "vm";
 import { Card } from "./game/card";
-import { initRenderer, render, World } from "./engine/renderer";
+import { initRenderer, render, resize as resizeViewport, World } from "./engine/renderer";
 import { ISimulation } from "./engine/types/ISimulation";
 import { vec3, VMath } from "./engine/math";
 import { simulate } from "./engine/simulation";
@@ -29,6 +29,19 @@ window.onload = () => {
 
     initRenderer(game);
 
+
+    //resize
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener("resize", (event) => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        resizeViewport(game.gl, window.innerWidth, window.innerHeight);
+    });
+
+
+
     //main loop ~ executes each anim frame to simulate and render game
     let main = () => {
         //Get current delta
@@ -41,8 +54,6 @@ window.onload = () => {
             return;
         }
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
 
         // Simulate
         simulate(game, deltaTime);

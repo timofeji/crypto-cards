@@ -8,6 +8,7 @@ import { vec3 } from "./math";
 var matWorldUniformLocation: WebGLUniformLocation;
 var matModelUniformLocation: WebGLUniformLocation;
 var matViewUniformLocation: WebGLUniformLocation;
+var matProjUniformLocation: WebGLUniformLocation;
 
 let identityMatrix = new Float32Array(16);
 mat4.identity(identityMatrix);
@@ -83,6 +84,12 @@ export class World {
     }
 }
 
+export function resize(gl: WebGLRenderingContext, w: number, h: number) {
+    mat4.perspective(projMatrix, glMatrix.toRadian(90), w /h, 0.1, 1000.0);
+    gl.viewport(0, 0, w,h);
+    gl.uniformMatrix4fv(matProjUniformLocation, false, projMatrix);
+}
+
 export async function initRenderer(game: ISimulation) {
 
 
@@ -98,12 +105,6 @@ export async function initRenderer(game: ISimulation) {
     let model = loadOBJ(obj);
     // let tea = loadOBJ(teapot);
     
-    window.addEventListener("resize", (event) => {
-        mat4.perspective(projMatrix, glMatrix.toRadian(90), window.innerWidth/window.innerHeight, 0.1, 1000.0);
-        gl.viewport(0, 0, window.innerWidth, window.innerHeight);
-        gl.uniformMatrix4fv(matProjUniformLocation, false, projMatrix);
-    });
-
 
 
     gl.clearColor(0.1, 0.07, 0.07, 1);
@@ -189,7 +190,7 @@ export async function initRenderer(game: ISimulation) {
     matWorldUniformLocation = gl.getUniformLocation(glProgram, "mWorld");
     matViewUniformLocation = gl.getUniformLocation(glProgram, "mView");
     matModelUniformLocation = gl.getUniformLocation(glProgram, "mModel");
-    var matProjUniformLocation = gl.getUniformLocation(glProgram, "mProj");
+    matProjUniformLocation = gl.getUniformLocation(glProgram, "mProj");
 
     mat4.identity(worldMatrix);
     mat4.identity(modelMatrix);
