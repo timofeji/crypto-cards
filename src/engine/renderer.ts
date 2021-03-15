@@ -84,6 +84,10 @@ export class World {
 }
 
 export async function initRenderer(game: ISimulation) {
+
+
+
+
     let gl = game.gl;
 
     let fragShader = await (await fetch("../shaders/frag.glsl")).text();
@@ -93,9 +97,12 @@ export async function initRenderer(game: ISimulation) {
     const teapot = await (await fetch("../assets/teapot.obj")).text();
     let model = loadOBJ(obj);
     // let tea = loadOBJ(teapot);
-    // tea.v_position = new vec3(4,0,0);
-    // game.world.objects.push(model);
-    // game.world.objects.push(tea);
+    
+    window.addEventListener("resize", (event) => {
+        mat4.perspective(projMatrix, glMatrix.toRadian(90), window.innerWidth/window.innerHeight, 0.1, 1000.0);
+        gl.viewport(0, 0, window.innerWidth, window.innerHeight);
+        gl.uniformMatrix4fv(matProjUniformLocation, false, projMatrix);
+    });
 
 
 
@@ -142,8 +149,14 @@ export async function initRenderer(game: ISimulation) {
 
     texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    // Fill the texture with a 1x1 blue pixel.
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+
+
+    texture2 = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture2);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+
+
 
     // Asynchronously load an image
     var image = new Image();
@@ -158,6 +171,19 @@ export async function initRenderer(game: ISimulation) {
         gl.generateMipmap(gl.TEXTURE_2D);
     });
 
+    var image2 = new Image();
+    image2.src = "../assets/t-texture.png";
+    image2.addEventListener("load", () => {
+        // Now that the image has loaded make copy it to the texture.
+
+        gl.bindTexture(gl.TEXTURE_2D, texture2);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image2);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.generateMipmap(gl.TEXTURE_2D);
+    });
+
+
     gl.useProgram(glProgram);
 
     matWorldUniformLocation = gl.getUniformLocation(glProgram, "mWorld");
@@ -168,9 +194,9 @@ export async function initRenderer(game: ISimulation) {
     mat4.identity(worldMatrix);
     mat4.identity(modelMatrix);
     mat4.lookAt(viewMatrix, [6, 0, 0], [0, 0, 0], [0, 1, 0]);
-    mat4.perspective(projMatrix, glMatrix.toRadian(90), gl.canvas.width / gl.canvas.height, 0.1, 1000.0);
+    mat4.perspective(projMatrix, glMatrix.toRadian(90), gl.canvas.width/gl.canvas.height, 0.1, 1000.0);
 
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.viewport(0, 0, window.innerWidth, window.innerHeight);
 
     gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
     gl.uniformMatrix4fv(matProjUniformLocation, false, projMatrix);
@@ -182,9 +208,11 @@ export function render(game: ISimulation, deltaTime: number) {
     let gl = game.gl;
     let world = game.world;
 
+
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
     gl.clearColor(0.1, 0.07, 0.07, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
 
 
     world.objects.forEach((renderObject) => {
@@ -192,7 +220,7 @@ export function render(game: ISimulation, deltaTime: number) {
 
         gl.uniformMatrix4fv(matModelUniformLocation, false, renderObject.m_modelMatrix);
 
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.bindTexture(gl.TEXTURE_2D, texture2);
         gl.activeTexture(gl.TEXTURE0);
 
         // VERTEX BUFFER OBJECT
