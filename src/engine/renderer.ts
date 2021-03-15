@@ -12,6 +12,9 @@ var matViewUniformLocation: WebGLUniformLocation;
 let identityMatrix = new Float32Array(16);
 mat4.identity(identityMatrix);
 
+let posAttribLocation: number;
+let texAttribLocation: number;
+
 export var viewMatrix = new Float32Array(16);
 var worldMatrix = new Float32Array(16);
 var modelMatrix = new Float32Array(16);
@@ -74,8 +77,7 @@ export class World {
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.m_INDICES), gl.STATIC_DRAW);
 
 
-        mesh.posAttribLocation = gl.getAttribLocation(glProgram, "vertPosition");
-        mesh.texAttribLocation = gl.getAttribLocation(glProgram, "vertTexCoord");
+        // mesh.posAttribLocation = gl.getAttribLocation(glProgram, "vertPosition");
 
         this.objects.push(mesh);
     }
@@ -94,6 +96,7 @@ export async function initRenderer(game: ISimulation) {
     // tea.v_position = new vec3(4,0,0);
     // game.world.objects.push(model);
     // game.world.objects.push(tea);
+
 
 
     gl.clearColor(0.1, 0.07, 0.07, 1);
@@ -127,10 +130,15 @@ export async function initRenderer(game: ISimulation) {
         return;
     }
 
+
+    posAttribLocation = gl.getAttribLocation(glProgram, "vertPosition");
+    texAttribLocation = gl.getAttribLocation(glProgram, "vertTexCoord");
+
     let plane = new Plane3D();
     plane.v_position = new vec3(0,-1,0);
     game.world.loadMesh(game.gl, box);
     game.world.loadMesh(game.gl, plane);
+    // game.world.loadMesh(game.gl, model);
 
     texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -190,26 +198,26 @@ export function render(game: ISimulation, deltaTime: number) {
         // VERTEX BUFFER OBJECT
         gl.bindBuffer(gl.ARRAY_BUFFER, renderObject.VBO);
         gl.vertexAttribPointer(
-            renderObject.posAttribLocation, // Attribute location
+            posAttribLocation, // Attribute location
             3, // Number of elements per attribute
             gl.FLOAT, // Type of elements
             false,
             3 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
             0 // Offset from the beginning of a single vertex to this attribute
         );
-        gl.enableVertexAttribArray(renderObject.posAttribLocation);
+        gl.enableVertexAttribArray(posAttribLocation);
 
         //TEXTURE BUFFER OBJECT
         gl.bindBuffer(gl.ARRAY_BUFFER, renderObject.TBO);
         gl.vertexAttribPointer(
-            renderObject.texAttribLocation, // Attribute location
+            texAttribLocation, // Attribute location
             2, // Number of elements per attribute
             gl.FLOAT, // Type of elements
             false,
             2 * Float32Array.BYTES_PER_ELEMENT,
             0
         );
-        gl.enableVertexAttribArray(renderObject.texAttribLocation);
+        gl.enableVertexAttribArray(texAttribLocation);
 
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderObject.IBO);
