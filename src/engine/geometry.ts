@@ -10,6 +10,16 @@ export class Box3D implements IMesh{
     m_modelMatrix: mat4;
     v_position: vec3;
 
+
+    IBO: WebGLBuffer;
+    VBO: WebGLBuffer;
+    NBO: WebGLBuffer;
+    TBO: WebGLBuffer;
+
+
+    texAttribLocation: number;
+    posAttribLocation: number;
+
     material: IMaterial;
 
     constructor(){
@@ -125,6 +135,15 @@ export class Plane3D implements IMesh {
     m_TEXCOORDS: Array<number>;
     m_modelMatrix:mat4;
     v_position: vec3;
+
+    IBO: WebGLBuffer;
+    VBO: WebGLBuffer;
+    NBO: WebGLBuffer;
+    TBO: WebGLBuffer;
+
+    texAttribLocation: number;
+    posAttribLocation: number;
+
     material: IMaterial;
 
     constructor()
@@ -172,6 +191,15 @@ export class Object3D implements IMesh {
     m_TEXCOORDS: any;
     m_modelMatrix:mat4;
     v_position: vec3;
+
+    IBO: WebGLBuffer;
+    VBO: WebGLBuffer;
+    NBO: WebGLBuffer;
+    TBO: WebGLBuffer;
+
+    texAttribLocation: number;
+    posAttribLocation: number;
+
     material: IMaterial;
 
 

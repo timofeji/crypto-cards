@@ -14,6 +14,16 @@ export interface IMesh{
     v_position: vec3;
     m_modelMatrix: mat4;
 
+    IBO: WebGLBuffer;
+    VBO: WebGLBuffer;
+    NBO: WebGLBuffer;
+    TBO: WebGLBuffer;
+
+    texAttribLocation: number;
+    posAttribLocation: number;
+
+
+
     material: IMaterial
 
 }
