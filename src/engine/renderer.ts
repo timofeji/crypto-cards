@@ -221,7 +221,7 @@ export function render(game: ISimulation, deltaTime: number) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 
-    gl.uniform3fv(lightUniformLocation, [Math.sin(performance.now()*0.005)*5,2, 0]);
+    gl.uniform3fv(lightUniformLocation, [Math.sin(performance.now()*0.005)*5,2, Math.cos(performance.now()*0.005)*5]);
 
 
 
