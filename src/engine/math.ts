@@ -14,9 +14,6 @@ export class vec3 {
         this.Z = 0;
     }
 
-    arr() {
-        return [this.X, this.Y, this.Z];
-    }
     add(x: vec3) {
         this.X += x.X;
         this.Y += x.Y;

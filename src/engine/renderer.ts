@@ -10,6 +10,8 @@ var matWorldUniformLocation: WebGLUniformLocation;
 var matModelUniformLocation: WebGLUniformLocation;
 var matViewUniformLocation: WebGLUniformLocation;
 var matProjUniformLocation: WebGLUniformLocation;
+var lightUniformLocation: WebGLUniformLocation;
+var timeUniformLocation: WebGLUniformLocation;
 
 let identityMatrix = new Float32Array(16);
 mat4.identity(identityMatrix);
@@ -188,10 +190,12 @@ export async function initRenderer(game: ISimulation) {
 
     gl.useProgram(glProgram);
 
-    matWorldUniformLocation = gl.getUniformLocation(glProgram, "mWorld");
-    matViewUniformLocation = gl.getUniformLocation(glProgram, "mView");
-    matModelUniformLocation = gl.getUniformLocation(glProgram, "mModel");
-    matProjUniformLocation = gl.getUniformLocation(glProgram, "mProj");
+    matWorldUniformLocation = gl.getUniformLocation(glProgram, "u_mWorld");
+    matViewUniformLocation = gl.getUniformLocation(glProgram, "u_mView");
+    matModelUniformLocation = gl.getUniformLocation(glProgram, "u_mModel");
+    matProjUniformLocation = gl.getUniformLocation(glProgram, "u_mProj");
+    lightUniformLocation = gl.getUniformLocation(glProgram, "u_vLightPos");
+    timeUniformLocation = gl.getUniformLocation(glProgram, "fTime");
 
     mat4.identity(worldMatrix);
     mat4.identity(modelMatrix);
@@ -211,15 +215,23 @@ export function render(game: ISimulation, deltaTime: number) {
     let world = game.world;
 
 
+    gl.uniform1f(timeUniformLocation, performance.now());
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
     gl.clearColor(0.1, 0.07, 0.07, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+
+    gl.uniform3fv(lightUniformLocation, [Math.sin(performance.now()*0.005)*5,2, 0]);
+
+
 
 
     world.objects.forEach((renderObject) => {
         mat4.translate(renderObject.m_modelMatrix, identityMatrix, [renderObject.v_position.X, renderObject.v_position.Y, renderObject.v_position.Z]);
 
         gl.uniformMatrix4fv(matModelUniformLocation, false, renderObject.m_modelMatrix);
+
+
 
         if (renderObject.material) {
             gl.bindTexture(gl.TEXTURE_2D, renderObject.material.texture);
