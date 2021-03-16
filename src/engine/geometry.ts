@@ -1,6 +1,7 @@
 import { mat4 } from "gl-matrix";
 import { vec3 } from "./math";
-import { IMaterial, IMesh } from "./types/IMesh";
+import { IMaterial } from "./types/IMaterial";
+import { IMesh } from "./types/IMesh";
 
 export class Box3D implements IMesh{
     m_VERTICES: any;

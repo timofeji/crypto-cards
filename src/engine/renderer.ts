@@ -4,6 +4,7 @@ import { IEntity } from "./types/IEntity";
 import { mat4, glMatrix } from "gl-matrix";
 import { Box3D, Plane3D, loadOBJ } from "./geometry";
 import { vec3 } from "./math";
+import { DefaultMaterial, IMaterial } from "./types/IMaterial";
 
 var matWorldUniformLocation: WebGLUniformLocation;
 var matModelUniformLocation: WebGLUniformLocation;
@@ -23,7 +24,7 @@ var projMatrix = new Float32Array(16);
 
 let glProgram: WebGLProgram;
 
-var texture: WebGLTexture;
+var devTexture: WebGLTexture;
 var texture2: WebGLTexture;
 
 export class Camera {
@@ -51,37 +52,29 @@ export class World {
         let box2 = new Box3D();
         let box = new Box3D();
         box2.v_position = new vec3(0, 2, 0);
-        // box3.v_position = new vec3(0, 0, 2);
         plane.v_position = new vec3(0, -1, 0);
         box.v_position = new vec3(2, 0, 0);
-
-        // this.loadMesh(box);
-        // this.loadMesh(box3);
-
-        // this.objects.push(box);
-        // this.objects.push(box3);
-        // this.objects.push(plane);
     }
 
-    loadMesh(gl: WebGLRenderingContext, mesh: IMesh) {
+    addMesh(gl: WebGLRenderingContext, mesh: IMesh) {
         //VERTEX BUFFER OBJECT
         mesh.VBO = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.VBO);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh.m_VERTICES), gl.STATIC_DRAW);
 
+        //TEXTURE BUFFER OBJECT
         mesh.TBO = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.TBO);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh.m_TEXCOORDS), gl.STATIC_DRAW);
 
+        //INDEX BUFFER OBJECT
         mesh.IBO = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.IBO);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.m_INDICES), gl.STATIC_DRAW);
 
-
-        // mesh.posAttribLocation = gl.getAttribLocation(glProgram, "vertPosition");
-
         this.objects.push(mesh);
     }
+   
 }
 
 export function resize(gl: WebGLRenderingContext, w: number, h: number) {
@@ -92,9 +85,6 @@ export function resize(gl: WebGLRenderingContext, w: number, h: number) {
 
 export async function initRenderer(game: ISimulation) {
 
-
-
-
     let gl = game.gl;
 
     let fragShader = await (await fetch("../shaders/frag.glsl")).text();
@@ -103,9 +93,7 @@ export async function initRenderer(game: ISimulation) {
     const obj = await (await fetch("../assets/test.obj")).text();
     const teapot = await (await fetch("../assets/teapot.obj")).text();
     let model = loadOBJ(obj);
-    // let tea = loadOBJ(teapot);
     
-
 
     gl.clearColor(0.1, 0.07, 0.07, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -113,8 +101,6 @@ export async function initRenderer(game: ISimulation) {
     gl.enable(gl.CULL_FACE);
     gl.frontFace(gl.CCW);
     gl.cullFace(gl.BACK);
-
-    // console.log(tea);
 
     // Compile shaders
     let vertexShader = buildShader(gl, vertShader, gl.VERTEX_SHADER);
@@ -142,14 +128,18 @@ export async function initRenderer(game: ISimulation) {
     posAttribLocation = gl.getAttribLocation(glProgram, "vertPosition");
     texAttribLocation = gl.getAttribLocation(glProgram, "vertTexCoord");
 
+    let boxer = new Box3D();
+    boxer.v_position = new vec3(2,0,0);
     let plane = new Plane3D();
     plane.v_position = new vec3(0,-1,0);
-    game.world.loadMesh(game.gl, box);
-    game.world.loadMesh(game.gl, plane);
-    // game.world.loadMesh(game.gl, model);
+    game.world.addMesh(game.gl, box);
+    game.world.addMesh(game.gl, plane);
+    game.world.addMesh(game.gl, boxer);
 
-    texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+
+    devTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, devTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
 
 
@@ -157,15 +147,17 @@ export async function initRenderer(game: ISimulation) {
     gl.bindTexture(gl.TEXTURE_2D, texture2);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
 
+    boxer.material = new DefaultMaterial();
+    boxer.material.texture = texture2;
 
 
     // Asynchronously load an image
     var image = new Image();
-    image.src = "../assets/f-texture.png";
+    image.src = "../assets/dev-texture.png";
     image.addEventListener("load", () => {
         // Now that the image has loaded make copy it to the texture.
 
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.bindTexture(gl.TEXTURE_2D, devTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -173,7 +165,7 @@ export async function initRenderer(game: ISimulation) {
     });
 
     var image2 = new Image();
-    image2.src = "../assets/t-texture.png";
+    image2.src = "../assets/f-texture.png";
     image2.addEventListener("load", () => {
         // Now that the image has loaded make copy it to the texture.
 
@@ -215,14 +207,18 @@ export function render(game: ISimulation, deltaTime: number) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 
-
     world.objects.forEach((renderObject) => {
         mat4.translate(renderObject.m_modelMatrix, identityMatrix, [renderObject.v_position.X, renderObject.v_position.Y, renderObject.v_position.Z]);
 
         gl.uniformMatrix4fv(matModelUniformLocation, false, renderObject.m_modelMatrix);
 
-        gl.bindTexture(gl.TEXTURE_2D, texture2);
-        gl.activeTexture(gl.TEXTURE0);
+        if (renderObject.material) {
+            gl.bindTexture(gl.TEXTURE_2D, renderObject.material.texture);
+            gl.activeTexture(gl.TEXTURE0);
+        } else {
+            gl.bindTexture(gl.TEXTURE_2D, devTexture);
+            gl.activeTexture(gl.TEXTURE0);
+        }
 
         // VERTEX BUFFER OBJECT
         gl.bindBuffer(gl.ARRAY_BUFFER, renderObject.VBO);
