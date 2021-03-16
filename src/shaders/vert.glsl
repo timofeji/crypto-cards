@@ -1,8 +1,8 @@
 precision mediump float;
 
-attribute vec3 vertPosition;
-attribute vec3 vertNormal;
-attribute vec2 vertTexCoord;
+attribute vec3 a_position;
+attribute vec3 a_normal;
+attribute vec2 a_texCoord;
 
 uniform mat4 mWorld;
 uniform mat4 mModel;
@@ -15,7 +15,8 @@ varying vec3 vNormals;
 
 void main()
 {
-  gl_Position = mProj * mView  * mModel *vec4(vertPosition, 1.0);
-  vNormals = mat3(mWorld) * vertNormal;
-  vTexCoord = vertTexCoord;
+  gl_Position = mProj * mView  * mModel *vec4(a_position, 1.0);
+  // vNormals = mat3(mWorld) * a_normal;
+  vNormals = a_normal;
+  vTexCoord = a_texCoord;
 }

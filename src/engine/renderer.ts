@@ -16,6 +16,7 @@ mat4.identity(identityMatrix);
 
 let posAttribLocation: number;
 let texAttribLocation: number;
+let nmlAttribLocation: number;
 
 export var viewMatrix = new Float32Array(16);
 var worldMatrix = new Float32Array(16);
@@ -67,10 +68,17 @@ export class World {
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.TBO);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh.m_TEXCOORDS), gl.STATIC_DRAW);
 
+        //NORMAL BUFFER OBJECT
+        mesh.NBO = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.NBO);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh.m_NORMALS), gl.STATIC_DRAW);
+
+
         //INDEX BUFFER OBJECT
         mesh.IBO = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.IBO);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.m_INDICES), gl.STATIC_DRAW);
+
 
         this.objects.push(mesh);
     }
@@ -125,8 +133,9 @@ export async function initRenderer(game: ISimulation) {
     }
 
 
-    posAttribLocation = gl.getAttribLocation(glProgram, "vertPosition");
-    texAttribLocation = gl.getAttribLocation(glProgram, "vertTexCoord");
+    posAttribLocation = gl.getAttribLocation(glProgram, "a_position");
+    texAttribLocation = gl.getAttribLocation(glProgram, "a_texCoord");
+    nmlAttribLocation = gl.getAttribLocation(glProgram, "a_normal");
 
     let boxer = new Box3D();
     boxer.v_position = new vec3(2,0,0);
@@ -231,6 +240,20 @@ export function render(game: ISimulation, deltaTime: number) {
             0 // Offset from the beginning of a single vertex to this attribute
         );
         gl.enableVertexAttribArray(posAttribLocation);
+
+
+        //NORMAL BUFFER OBJECT
+        gl.bindBuffer(gl.ARRAY_BUFFER, renderObject.NBO);
+        gl.vertexAttribPointer(
+            nmlAttribLocation, // Attribute location
+            3, // Number of elements per attribute
+            gl.FLOAT, // Type of elements
+            false,
+            0 * Float32Array.BYTES_PER_ELEMENT,
+            0
+        );
+        gl.enableVertexAttribArray(nmlAttribLocation);
+
 
         //TEXTURE BUFFER OBJECT
         gl.bindBuffer(gl.ARRAY_BUFFER, renderObject.TBO);

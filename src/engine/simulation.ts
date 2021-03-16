@@ -88,7 +88,7 @@ export function simulate(game: ISimulation, deltaTime: number) {
     }
 
     if(game.world.objects.length > 1){
-        game.world.objects[0].v_position = new vec3(0, 1 + Math.sin(performance.now() / 1000), 0);
+        game.world.objects[0].v_position = new vec3( -1 - Math.sin(performance.now() / 1000),0, 0);
     }
     if(bMouseDown){
 
