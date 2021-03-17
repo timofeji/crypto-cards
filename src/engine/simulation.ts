@@ -38,6 +38,14 @@ document.addEventListener("mouseup", onMouseDown, false);
 
 // Update view in simulation since mat transforms are expensive 
 let updateView = (world: World) => {
+
+
+    world.camera.v_position.X = Math.cos(world.camera.pitch) * world.camera.dist;
+    world.camera.v_position.Y = Math.cos(world.camera.yaw) * world.camera.dist;
+    world.camera.v_position.Z = Math.sin(world.camera.pitch) * world.camera.dist;
+
+
+
     mat4.lookAt(
         viewMatrix,
         [
@@ -59,9 +67,7 @@ let updateView = (world: World) => {
 export function simulate(game: ISimulation, deltaTime: number) {
 
 
-    game.world.camera.v_position.Y = Math.sin(performance.now()*0.001)*5 +5;
-    updateView(game.world);
-
+    // game.world.camera.v_position.Y = Math.sin(performance.now()*0.001)*5 +5;
     let cam = game.world.camera;
     let v_dir = VMath.sub(cam.v_lookAt, cam.v_position).normalize();
 

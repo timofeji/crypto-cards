@@ -35,6 +35,7 @@ var texture2: WebGLTexture;
 export class Camera {
     pitch: number;
     yaw: number;
+    dist: number;
     v_position: vec3;
     v_lookAt: vec3;
 }
@@ -48,10 +49,11 @@ export class World {
 
     constructor() {
         this.camera = new Camera();
-        this.camera.v_position = new vec3(6, 0, 0);
+        this.camera.v_position = new vec3(0, 0, 6);
         this.camera.v_lookAt = new vec3(0, 0, 0);
         this.camera.pitch = 0;
         this.camera.yaw = 0;
+        this.camera.dist = 6;
         this.objects = [];
 
         let box2 = new Box3D();
@@ -203,7 +205,7 @@ export async function initRenderer(game: ISimulation) {
 
     mat4.identity(worldMatrix);
     mat4.identity(modelMatrix);
-    mat4.lookAt(viewMatrix, [6, 0, 0], [0, 0, 0], [0, 1, 0]);
+    mat4.lookAt(viewMatrix, [0, 0, 6], [0, 0, 0], [0, 1, 0]);
     mat4.perspective(projMatrix, glMatrix.toRadian(90), gl.canvas.width/gl.canvas.height, 0.1, 1000.0);
 
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
@@ -213,8 +215,7 @@ export async function initRenderer(game: ISimulation) {
     gl.uniformMatrix4fv(matModelUniformLocation, false, modelMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
 
-
-    gl.uniform1f(shininessUniformLocation, 30.0);
+    gl.uniform1f(shininessUniformLocation, 110.0);
 }
 
 export function render(game: ISimulation, deltaTime: number) {
