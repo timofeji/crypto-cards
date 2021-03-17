@@ -11,7 +11,9 @@ var matModelUniformLocation: WebGLUniformLocation;
 var matViewUniformLocation: WebGLUniformLocation;
 var matProjUniformLocation: WebGLUniformLocation;
 var lightUniformLocation: WebGLUniformLocation;
+var viewPosUniformLocation: WebGLUniformLocation;
 var timeUniformLocation: WebGLUniformLocation;
+var shininessUniformLocation: WebGLUniformLocation;
 
 let identityMatrix = new Float32Array(16);
 mat4.identity(identityMatrix);
@@ -195,7 +197,9 @@ export async function initRenderer(game: ISimulation) {
     matModelUniformLocation = gl.getUniformLocation(glProgram, "u_mModel");
     matProjUniformLocation = gl.getUniformLocation(glProgram, "u_mProj");
     lightUniformLocation = gl.getUniformLocation(glProgram, "u_vLightPos");
+    viewPosUniformLocation = gl.getUniformLocation(glProgram, "u_vViewPos");
     timeUniformLocation = gl.getUniformLocation(glProgram, "fTime");
+    shininessUniformLocation = gl.getUniformLocation(glProgram, "u_shininess");
 
     mat4.identity(worldMatrix);
     mat4.identity(modelMatrix);
@@ -208,6 +212,9 @@ export async function initRenderer(game: ISimulation) {
     gl.uniformMatrix4fv(matProjUniformLocation, false, projMatrix);
     gl.uniformMatrix4fv(matModelUniformLocation, false, modelMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
+
+
+    gl.uniform1f(shininessUniformLocation, 30.0);
 }
 
 export function render(game: ISimulation, deltaTime: number) {
@@ -222,7 +229,8 @@ export function render(game: ISimulation, deltaTime: number) {
 
 
     gl.uniform3fv(lightUniformLocation, [Math.sin(performance.now()*0.005)*5,2, Math.cos(performance.now()*0.005)*5]);
-
+    gl.uniform3fv(viewPosUniformLocation,
+        [game.world.camera.v_position.X, game.world.camera.v_position.Y, game.world.camera.v_position.Z]);
 
 
 

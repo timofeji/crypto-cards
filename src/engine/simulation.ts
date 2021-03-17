@@ -52,11 +52,16 @@ let updateView = (world: World) => {
         ],
         [0, 1, 0]
     ); // Y UP
-    mat4.rotateZ(viewMatrix, viewMatrix, world.camera.yaw);
-    mat4.rotateY(viewMatrix, viewMatrix, world.camera.pitch);
+    // mat4.rotateZ(viewMatrix, viewMatrix, world.camera.yaw);
+    // mat4.rotateY(viewMatrix, viewMatrix, world.camera.pitch);
 };
 
 export function simulate(game: ISimulation, deltaTime: number) {
+
+
+    game.world.camera.v_position.Y = Math.sin(performance.now()*0.001)*5 +5;
+    updateView(game.world);
+
     let cam = game.world.camera;
     let v_dir = VMath.sub(cam.v_lookAt, cam.v_position).normalize();
 
