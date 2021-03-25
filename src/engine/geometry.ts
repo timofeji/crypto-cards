@@ -1,4 +1,5 @@
 import { mat4 } from "gl-matrix";
+import { parse } from "querystring";
 import { vec3 } from "./math";
 import { IMaterial } from "./types/IMaterial";
 import { IMesh } from "./types/IMesh";
@@ -264,7 +265,7 @@ export function parseFace(string:string) {
     })
 }
 
-export function loadOBJ(text: string): Object3D {
+export function loadOBJMesh(text: string): Object3D {
     const _vertices: any = [];
     const _normals: any = [];
     const _texCoords: any = [];
@@ -289,11 +290,19 @@ export function loadOBJ(text: string): Object3D {
         if (line.startsWith('f ')) {
             const parsedFace = parseFace(line);
 
-            vertexIndices.push(...parsedFace.map(face => face[0] - 1));
+            vertexIndices.push(...parsedFace.map(face => face[0]));
             texCoordIndices.push(...parsedFace.map(face => face[1] - 1));
             normalIndices.push(...parsedFace.map(face => face[2] - 1));
+
+            // parsedFace.map(face => {
+            //     vertexIndices.push(face[0]);
+            // })
+
+            console.log(parsedFace);
         }
     });
+
+    // console.log(vertexIndices.join());
 
     const vertices = [];
     const normals = [];
@@ -325,6 +334,7 @@ export function loadOBJ(text: string): Object3D {
     mesh.m_NORMALS = new Float32Array(normals);
     mesh.m_TEXCOORDS = new Float32Array(texCoords);
     mesh.m_INDICES = new Float32Array(vertexIndices);
+
 
     return mesh;
 }

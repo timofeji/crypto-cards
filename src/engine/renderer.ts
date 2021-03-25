@@ -2,7 +2,7 @@ import { ISimulation } from "./types/ISimulation";
 import { IMesh } from "./types/IMesh";
 import { IEntity } from "./types/IEntity";
 import { mat4, glMatrix } from "gl-matrix";
-import { Box3D, Plane3D, loadOBJ } from "./geometry";
+import { Box3D, Plane3D, loadOBJMesh } from "./geometry";
 import { vec3 } from "./math";
 import { DefaultMaterial, IMaterial } from "./types/IMaterial";
 
@@ -104,9 +104,9 @@ export async function initRenderer(game: ISimulation) {
     let fragShader = await (await fetch("../shaders/frag.glsl")).text();
     let vertShader = await (await fetch("../shaders/vert.glsl")).text();
 
-    const obj = await (await fetch("../assets/test.obj")).text();
+    const obj = await (await fetch("../assets/monkey.obj")).text();
     const teapot = await (await fetch("../assets/teapot.obj")).text();
-    let model = loadOBJ(obj);
+    let model = loadOBJMesh(obj);
     
 
     gl.clearColor(0.1, 0.07, 0.07, 1);
@@ -145,11 +145,13 @@ export async function initRenderer(game: ISimulation) {
 
     let boxer = new Box3D();
     boxer.v_position = new vec3(2,0,0);
+    model.v_position = new vec3(0,4,0);
     let plane = new Plane3D();
     plane.v_position = new vec3(0,-1,0);
     game.world.addMesh(game.gl, box);
     game.world.addMesh(game.gl, plane);
     game.world.addMesh(game.gl, boxer);
+    game.world.addMesh(game.gl, model);
 
 
 
@@ -202,6 +204,8 @@ export async function initRenderer(game: ISimulation) {
     viewPosUniformLocation = gl.getUniformLocation(glProgram, "u_vViewPos");
     timeUniformLocation = gl.getUniformLocation(glProgram, "fTime");
     shininessUniformLocation = gl.getUniformLocation(glProgram, "u_shininess");
+
+
 
     mat4.identity(worldMatrix);
     mat4.identity(modelMatrix);
